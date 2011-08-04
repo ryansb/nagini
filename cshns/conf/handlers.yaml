@@ -1,0 +1,7 @@
+- url: /cshns
+  handler: cshns.handlers.CSHNSServer
+  name: server
+
+- url: /client
+  handler: cshns.handlers.SimpleClient
+  name: client
