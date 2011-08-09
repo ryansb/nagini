@@ -17,7 +17,7 @@ class CSHNSServer(RequestHandler):
 	The server interface, for submitting messages to and administering queues,
 	as well as getting information about available queues
 	"""
-	allowed_methods = ['head', 'get', 'put', 'post', 'options']
+	allowed_methods = ['head', 'get', 'put', 'post', 'delete', 'options']
 	def __init__(cls, env, config):
 		RequestHandler.__init__(cls, env, config)
 		cls.log = logging.getLogger("CSHNS-Server")
@@ -83,6 +83,12 @@ class CSHNSServer(RequestHandler):
 		return response
 
 	def _options(cls, request, response, id=None):
+		"""Do shit"""
+		response.status = 200
+		response.body = "OK"
+		return response
+
+	def _delete(cls, request, response, id=None):
 		"""Do shit"""
 		response.status = 200
 		response.body = "OK"
