@@ -40,9 +40,9 @@ class Model(object):
 
 	def put(cls):
 		#Should save the object, if the object doesn't have an ID yet, create one
-		if not cls.id: cls.generate_id(cls)
-		cls.conn.put(cls.id, cls.encode())
-		return True
+		if not cls.id: cls.generate_id()
+		cls._manager.store.put(cls.id, cls.encode())
+		return cls.id
 
 	def generate_id(cls):
 		from random import randint
