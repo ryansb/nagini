@@ -34,8 +34,7 @@ class DarkMaster(object):
 		return self._store
 
 	def _connect(self):
-		args = (self.db_store, self.db_hosts)
-		self._store = StoreClient(args)
+		self._store = StoreClient(self.db_store, self.db_hosts)
 
 	def get_object(self, id):
-		return self.store.get(id)[0][0]
+		return self.store.get(id)

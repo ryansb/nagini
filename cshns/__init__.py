@@ -5,3 +5,4 @@
 __version__ = 0.0
 DB_SERVERS = [("127.0.0.1", 6666)]
 MESSAGE_STORE = "test"
+CONFIG_LOCATION = '/home/ryansb/code/cshns/cshns/conf/db.yaml'

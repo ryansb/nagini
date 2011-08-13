@@ -5,12 +5,14 @@
 
 from cshns.db import get_manager
 
+
 class Model(object):
-	def __init__(cls, connection):
-		cls.conn = connection
+	id = None
+	_manager = get_manager()
+
+	def __init__(cls):
 		cls.type = 'model'
 		cls.id = None
-		cls._manager = get_manager()
 		pass
 
 	#def get_by_id(cls, id):
@@ -19,15 +21,11 @@ class Model(object):
 		#cls.decode(raw)
 		#return cls
 
-	@property
-	def _manager(cls):
-		cls._manager = get_manager()
-
 	@classmethod
 	def _get_by_id(cls, id, manager=None):
 		if not manager:
 			manager = cls._manager
-		manager.get_object(cls, id)
+		return manager.get_object(id)
 
 	@classmethod
 	def get_by_id(cls, ids=None):
@@ -35,7 +33,10 @@ class Model(object):
 			objs = [cls._get_by_id(id) for id in ids]
 			return objs
 		else:
-			cls._get_by_id(ids)
+			raw = cls._get_by_id(ids)
+			obj = Model()
+			obj.decode(raw[0][0])
+			return obj
 
 	def put(cls):
 		#Should save the object, if the object doesn't have an ID yet, create one
