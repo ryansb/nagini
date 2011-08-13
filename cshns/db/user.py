@@ -9,11 +9,7 @@ class User(Model):
 	def __init__(cls, connection):
 		Model.__init__(cls, connection)
 
-	@classmethod
-	def put(cls):
-		#Should save the object, if the object doesn't have an ID yet, create one
-		if not cls.id:
-			from random import randint
-			rand = randint(1000000000000, 9999999999999)
-			cls.id = "USR-%s-%s" % (cls.name[0:3], rand)
-		raise NotImplementedError, "Not yet supported"
+	def generate_id(cls):
+		from random import randint
+		rand = randint(1000000000000, 9999999999999)
+		cls.id = "USR-%s-%s" % (cls.name[0:3], rand)

@@ -1,0 +1,5 @@
+db_hosts:
+- !!python/tuple [127.0.0.1, 6666]
+db_passwd: ''
+db_store: test
+db_user: ''

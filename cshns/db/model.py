@@ -3,23 +3,50 @@
 # Author: Ryan Brown
 # Description: Model object, base for other DB objects like User and Message
 
+from cshns.db import get_manager
+
 class Model(object):
 	def __init__(cls, connection):
 		cls.conn = connection
 		cls.type = 'model'
 		cls.id = None
+		cls._manager = get_manager()
 		pass
 
-	def get_by_id(cls, id):
-		cls.id = id
-		raw = cls.conn.get(id)[0][0]
-		cls.decode(raw)
-		return cls
+	#def get_by_id(cls, id):
+		#cls.id = id
+		#raw = cls.conn.get(id)[0][0]
+		#cls.decode(raw)
+		#return cls
+
+	@property
+	def _manager(cls):
+		cls._manager = get_manager()
+
+	@classmethod
+	def _get_by_id(cls, id, manager=None):
+		if not manager:
+			manager = cls._manager
+		manager.get_object(cls, id)
+
+	@classmethod
+	def get_by_id(cls, ids=None):
+		if isinstance(ids, list):
+			objs = [cls._get_by_id(id) for id in ids]
+			return objs
+		else:
+			cls._get_by_id(ids)
 
 	def put(cls):
 		#Should save the object, if the object doesn't have an ID yet, create one
+		if not cls.id: cls.generate_id(cls)
 		cls.conn.put(cls.id, cls.encode())
 		return True
+
+	def generate_id(cls):
+		from random import randint
+		rand = randint(1000000000000, 9999999999999)
+		cls.id = "MOD-%s" % rand
 
 	def decode(cls, raw):
 		#Decodes the pickled dict
