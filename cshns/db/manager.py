@@ -26,7 +26,6 @@ class DarkMaster(object):
 		self.db_hosts = db_hosts
 		self._store = None
 
-
 	@property
 	def store(self):
 		if self._store is None:
@@ -38,3 +37,11 @@ class DarkMaster(object):
 
 	def get_object(self, id):
 		return self.store.get(id)
+
+	def delete(self, id):
+		self.store.delete(id)
+		return True
+
+	def all(self):
+		self._store.get_all()
+

@@ -5,27 +5,28 @@
 
 from cshns.db import get_manager
 
+class VoldKeyNotFound(Exception):
+	def __init__(self, message):
+		Exception.__init__(self, message)
 
 class Model(object):
-	id = None
 	_manager = get_manager()
 
-	def __init__(cls):
-		cls.type = 'model'
-		cls.id = None
+	def __init__(self):
+		self.type = 'model'
+		self.id = None
 		pass
-
-	#def get_by_id(cls, id):
-		#cls.id = id
-		#raw = cls.conn.get(id)[0][0]
-		#cls.decode(raw)
-		#return cls
 
 	@classmethod
 	def _get_by_id(cls, id, manager=None):
 		if not manager:
 			manager = cls._manager
-		return manager.get_object(id)
+		raw =  manager.get_object(id)
+		try:
+			obj = Model().decode(raw[0][0])
+			return obj
+		except IndexError:
+			raise VoldKeyNotFound("Couldn't find Voldemort key %s" % id)
 
 	@classmethod
 	def get_by_id(cls, ids=None):
@@ -33,42 +34,63 @@ class Model(object):
 			objs = [cls._get_by_id(id) for id in ids]
 			return objs
 		else:
-			raw = cls._get_by_id(ids)
-			obj = Model()
-			obj.decode(raw[0][0])
+			obj = cls._get_by_id(ids)
 			return obj
 
-	def put(cls):
-		#Should save the object, if the object doesn't have an ID yet, create one
-		if not cls.id: cls.generate_id()
-		cls._manager.store.put(cls.id, cls.encode())
-		return cls.id
+	@classmethod
+	def _delete_by_id(cls, id, manager=None):
+		if not manager:
+			manager = cls._manager
+		return manager.delete(id)
 
-	def generate_id(cls):
+	@classmethod
+	def delete_by_id(cls, ids):
+		if isinstance(ids, list):
+			results = [cls._delete_by_id(id) for id in ids]
+			return results
+		else:
+			return cls._delete_by_id(ids)
+
+	@classmethod
+	def all(cls, limit=None):
+		#doesn't actually work
+		#might eventually let people decide a max number of results they want
+		return cls.manager.all()
+
+	def delete(self):
+		return self._delete_by_id(self.id)
+
+	def put(self):
+		#Should save the object, if the object doesn't have an ID yet, create one
+		if not self.id: self.generate_id()
+		self._manager.store.put(self.id, self.encode())
+		return self.id
+
+	def generate_id(self):
 		from random import randint
 		rand = randint(1000000000000, 9999999999999)
-		cls.id = "MOD-%s" % rand
+		self.id = "MOD-%s" % rand
 
-	def decode(cls, raw):
+	def decode(self, raw):
 		#Decodes the pickled dict
 		import base64
 		import pickle
 		decoded = base64.decodestring(raw)
 		attrs = pickle.loads(decoded)
 		for k, v in attrs.items():
-			cls.__dict__[k] = v
-		#take the keys and make them cls attributes
+			self.__dict__[k] = v
+		#take the keys and make them self attributes
 		#would be nice if we could take any items that are ID's and put the corresponding models in their place
 		return attrs
 
-	def encode(cls):
+	def encode(self):
 		import base64
 		import pickle
 		attrs = {}
-		for k, v in cls.__dict__.items():
+		for k, v in self.__dict__.items():
 			if k == 'conn': continue
 			attrs[k] = v
-		#take all the cls attrs and make them key/value pairs in the dict
+		#take all the self attrs and make them key/value pairs in the dict
 		pic = pickle.dumps(attrs)
 		encoded = base64.encodestring(pic)
 		return encoded

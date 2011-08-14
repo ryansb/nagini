@@ -6,8 +6,8 @@
 from cshns.db.model import Model
 
 class Message(Model):
-	def __init__(cls, queue, user, connection):
-		Model.__init__(cls, connection)
+	def __init__(cls, queue, user):
+		Model.__init__(cls)
 
 	def generate_id(cls):
 		from random import randint

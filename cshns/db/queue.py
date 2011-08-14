@@ -6,8 +6,8 @@
 from cshns.db.model import Model
 
 class Queue(Model):
-	def __init__(cls, connection):
-		Model.__init__(cls, connection)
+	def __init__(cls):
+		Model.__init__(cls)
 
 	def generate_id(cls):
 		from random import randint
