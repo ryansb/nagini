@@ -23,7 +23,8 @@ class Model(object):
 			manager = cls._manager
 		raw =  manager.get_object(id)
 		try:
-			obj = Model().decode(raw[0][0])
+			obj = Model()
+			obj.decode(raw[0][0])
 			return obj
 		except IndexError:
 			raise VoldKeyNotFound("Couldn't find Voldemort key %s" % id)
@@ -95,4 +96,12 @@ class Model(object):
 		encoded = base64.encodestring(pic)
 		return encoded
 
+	def to_json(self):
+		import json
+		return json.dumps(self.__dict__)
 
+	def pretty_print(self):
+		ret = "Object %s" % self.id
+		for k, v in self.__dict__.items():
+			ret = ret + '\n%s :\t%s' % (k, v)
+		return ret
