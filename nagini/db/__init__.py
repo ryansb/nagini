@@ -17,6 +17,7 @@ def get_manager():
 	return DarkMaster(db_user, db_passwd, db_store, db_hosts)
 
 def read_config():
+	"""Read the config file stored in the location defined in nagini/__init__"""
 	with open(CONFIG_LOCATION, 'rb') as config:
 		config_values = yaml.load(config.read())
 		config.close()

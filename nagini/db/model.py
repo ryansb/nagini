@@ -31,6 +31,12 @@ class Model(object):
 
 	@classmethod
 	def get_by_id(cls, ids=None):
+		"""Return an object of the Model attached to the given ID
+
+		Takes ID's either as a single strng or list of strings
+
+		Returns a Model object or a list of model objects, depending on the
+		input"""
 		if isinstance(ids, list):
 			objs = [cls._get_by_id(id) for id in ids]
 			return objs
@@ -46,6 +52,7 @@ class Model(object):
 
 	@classmethod
 	def delete_by_id(cls, ids):
+		"""Delete "n object by its ID"""
 		if isinstance(ids, list):
 			results = [cls._delete_by_id(id) for id in ids]
 			return results
@@ -54,26 +61,35 @@ class Model(object):
 
 	@classmethod
 	def all(cls, limit=None):
+		"""Return an iterable of all keys in the database"""
 		#doesn't actually work
 		#might eventually let people decide a max number of results they want
 		return cls.manager.all()
 
 	def delete(self):
+		"""Delete this object immediately from the data store"""
 		return self._delete_by_id(self.id)
 
 	def put(self):
-		#Should save the object, if the object doesn't have an ID yet, create one
+		"""Saves a Model object with all its attributes. If the Model has been
+		altered it keeps its ID, but if the object doesn't yet have an ID it
+		generates one for itself.
+
+		Returns the ID of the story after it is saves"""
 		if not self.id: self.generate_id()
 		self._manager.store.put(self.id, self.encode())
 		return self.id
 
 	def generate_id(self):
+		"""Generates a unique identifier to call the object up by later"""
 		from random import randint
 		rand = randint(1000000000000, 9999999999999)
 		self.id = "MOD-%s" % rand
 
 	def decode(self, raw):
-		#Decodes the pickled dict
+		"""Decodes the pickled, Base64-encoded Model object.
+
+		Returns a dictionary of the attributes that were encoding"""
 		import base64
 		import pickle
 		decoded = base64.decodestring(raw)
@@ -85,6 +101,7 @@ class Model(object):
 		return attrs
 
 	def encode(self):
+		"""Put the entire Model into a base-64 encoded pickled version to be stored in Voldemort."""
 		import base64
 		import pickle
 		attrs = {}
@@ -97,10 +114,12 @@ class Model(object):
 		return encoded
 
 	def to_json(self):
+		"""Dump the entire Model object into a JSON blob"""
 		import json
 		return json.dumps(self.__dict__)
 
 	def pretty_print(self):
+		"""Return a kinda nice-looking string version of the Model"""
 		ret = "Object %s" % self.id
 		for k, v in self.__dict__.items():
 			ret = ret + '\n%s :\t%s' % (k, v)
