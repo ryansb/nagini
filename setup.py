@@ -23,12 +23,12 @@
 
 from setuptools import setup, find_packages
 
-from cshns import __version__
+from nagini import __version__
 
-setup(name = "cshns",
+setup(name = "nagini",
 		version = __version__,
-		description = "Cloud-Scale Holistic Notification Service",
-		long_description="CSHNS is a notification service to communicate quickly and in a lightweight fashion via HTTP",
+		description = "Abstraction of objects in a Voldemort database (though could be adapted for similar db types)",
+		long_description="Nagini is an abstraction of key/value pairs that allows you to give them list attributes, store entire objects, etc",
 		author = "Ryan Brown",
 		author_email = "ryansb@csh.rit.edu",
 		url = "https://",
@@ -47,10 +47,7 @@ setup(name = "cshns",
 			'Topic :: Internet',
 		],
 		dependency_links = [
-			"http://code.google.com/p/boto/downloads/list",
-			"http://code.google.com/p/boto-web/downloads/list",
 		],
 		install_requires = [
-			"botoweb",
 		],
 	)

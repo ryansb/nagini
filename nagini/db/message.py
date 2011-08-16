@@ -3,7 +3,7 @@
 # Author: Ryan Brown
 # Description: Message object, associated with a queue
 
-from cshns.db.model import Model
+from nagini.db.model import Model
 
 class Message(Model):
 	def __init__(cls, queue, user):

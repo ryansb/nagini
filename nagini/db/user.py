@@ -1,9 +1,10 @@
+
 #!/usr/bin/env python
 # -*- coding; utf-8 -*-
 # Author: Ryan Brown
 # Description: User object, associated with queues
 
-from cshns.db.model import Model
+from nagini.db.model import Model
 
 class User(Model):
 	def __init__(self, shortname, passwd, longname=None, devices=[]):
@@ -14,10 +15,15 @@ class User(Model):
 		self.devices = devices
 		Model.__init__(self)
 
-	def generate_id(cls):
+	def generate_id(self):
 		from random import randint
 		rand = randint(1000000000000, 9999999999999)
-		cls.id = "USR-%s-%s" % (cls.name[0:3], rand)
+		self.id = "USR-%s-%s" % (self.name[0:3].upper(), rand)
+
+	def validate(self, attempted_passwd):
+		if prep_password(attempted_passwd) == self.passwd:
+			return True
+		return False
 
 def prep_password(passwd):
 	import hashlib

@@ -3,8 +3,8 @@
 # Author: Ryan Brown
 # Description: Contains database-related objects including the Model, User, and Message objects
 import yaml
-from cshns import CONFIG_LOCATION
-from cshns.db.manager import DarkMaster
+from nagini import CONFIG_LOCATION
+from nagini.db.manager import DarkMaster
 
 def get_manager():
 	"""Creates and returns an instance of DarkMaster (connection manager)

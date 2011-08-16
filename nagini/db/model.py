@@ -3,7 +3,7 @@
 # Author: Ryan Brown
 # Description: Model object, base for other DB objects like User and Message
 
-from cshns.db import get_manager
+from nagini.db import get_manager
 
 class VoldKeyNotFound(Exception):
 	def __init__(self, message):

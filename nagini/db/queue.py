@@ -3,7 +3,7 @@
 # Author: Ryan Brown
 # Description: Queue object, contains messages, has users
 
-from cshns.db.model import Model
+from nagini.db.model import Model
 
 class Queue(Model):
 	def __init__(cls):
