@@ -9,7 +9,3 @@ class Queue(Model):
 	def __init__(cls):
 		Model.__init__(cls)
 
-	def generate_id(cls):
-		from random import randint
-		rand = randint(1000000000000, 9999999999999)
-		cls.id = "QUE-%s-%s" % (cls.name[0:3], rand)

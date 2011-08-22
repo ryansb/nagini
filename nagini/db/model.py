@@ -4,6 +4,7 @@
 # Description: Model object, base for other DB objects like User and Message
 
 from nagini.db import get_manager
+from nagini.db.property import ReferenceProperty
 
 class VoldKeyNotFound(Exception):
 	def __init__(self, message):
@@ -13,7 +14,6 @@ class Model(object):
 	_manager = get_manager()
 
 	def __init__(self):
-		self.type = 'model'
 		self.id = None
 		pass
 
@@ -23,6 +23,7 @@ class Model(object):
 			manager = cls._manager
 		raw =  manager.get_object(id)
 		try:
+			print raw
 			obj = Model()
 			obj.decode(raw[0][0])
 			return obj
@@ -82,9 +83,8 @@ class Model(object):
 
 	def generate_id(self):
 		"""Generates a unique identifier to call the object up by later"""
-		from random import randint
-		rand = randint(1000000000000, 9999999999999)
-		self.id = "MOD-%s" % rand
+		import uuid
+		self.id = "%s-%s" % (self.__class__.__name__[:5].upper(), str(uuid.uuid4()))
 
 	def decode(self, raw):
 		"""Decodes the pickled, Base64-encoded Model object.
@@ -95,7 +95,10 @@ class Model(object):
 		decoded = base64.decodestring(raw)
 		attrs = pickle.loads(decoded)
 		for k, v in attrs.items():
-			self.__dict__[k] = v
+			if isinstance(v, ReferenceProperty):
+				self.__dict__[k] = v.decode()
+			else:
+				self.__dict__[k] = v
 		#take the keys and make them self attributes
 		#would be nice if we could take any items that are ID's and put the corresponding models in their place
 		return attrs
@@ -106,8 +109,10 @@ class Model(object):
 		import pickle
 		attrs = {}
 		for k, v in self.__dict__.items():
-			if k == 'conn': continue
-			attrs[k] = v
+			if issubclass(v.__class__, Model):
+				attrs[k] = ReferenceProperty(v.id, v.__class__.__name__)
+			else:
+				attrs[k] = v
 		#take all the self attrs and make them key/value pairs in the dict
 		pic = pickle.dumps(attrs)
 		encoded = base64.encodestring(pic)
@@ -120,7 +125,7 @@ class Model(object):
 
 	def pretty_print(self):
 		"""Return a kinda nice-looking string version of the Model"""
-		ret = "Object %s" % self.id
+		ret = "%s %s" % (self.__class__.__name__, self.id)
 		for k, v in self.__dict__.items():
 			ret = ret + '\n%s :\t%s' % (k, v)
 		return ret
