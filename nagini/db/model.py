@@ -19,13 +19,20 @@ class Model(object):
 
 	@classmethod
 	def _get_by_id(cls, id, manager=None):
+		import json
+		import base64
 		if not manager:
 			manager = cls._manager
-		raw =  manager.get_object(id)
 		try:
-			print raw
-			obj = Model()
-			obj.decode(raw[0][0])
+			raw = manager.get_object(id)[0][0]
+			decoded = base64.decodestring(raw)
+			raw_dict = json.loads(decoded)
+			print raw_dict
+			fqn = raw_dict['class'] #Fully Qualified Name of the class
+			print fqn
+			exec("from %s import %s" % ('.'.join(fqn.split('.')[:-1]), fqn.split('.')[-1:][0]))
+			exec("obj = %s()" % fqn.split('.')[-1:][0])
+			obj.decode(raw_dict['blob'])
 			return obj
 		except IndexError:
 			raise VoldKeyNotFound("Couldn't find Voldemort key %s" % id)
@@ -87,13 +94,11 @@ class Model(object):
 		self.id = "%s-%s" % (self.__class__.__name__[:5].upper(), str(uuid.uuid4()))
 
 	def decode(self, raw):
-		"""Decodes the pickled, Base64-encoded Model object.
+		"""Decodes the pickled Model object.
 
 		Returns a dictionary of the attributes that were encoding"""
-		import base64
 		import pickle
-		decoded = base64.decodestring(raw)
-		attrs = pickle.loads(decoded)
+		attrs = pickle.loads(raw)
 		for k, v in attrs.items():
 			if isinstance(v, ReferenceProperty):
 				self.__dict__[k] = v.decode()
@@ -105,8 +110,10 @@ class Model(object):
 
 	def encode(self):
 		"""Put the entire Model into a base-64 encoded pickled version to be stored in Voldemort."""
+		import json
 		import base64
 		import pickle
+		classname = repr(self.__class__).split("'")[1]
 		attrs = {}
 		for k, v in self.__dict__.items():
 			if issubclass(v.__class__, Model):
@@ -114,8 +121,10 @@ class Model(object):
 			else:
 				attrs[k] = v
 		#take all the self attrs and make them key/value pairs in the dict
+
 		pic = pickle.dumps(attrs)
-		encoded = base64.encodestring(pic)
+		json = json.dumps({'class': classname, 'blob': pic})
+		encoded = base64.encodestring(json)
 		return encoded
 
 	def to_json(self):
