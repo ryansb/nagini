@@ -3,9 +3,30 @@
 # Author: Ryan Brown
 # Description: Property class. Model (and its subclasses) have properties
 
+def prep_password(passwd):
+	import hashlib
+	return hashlib.sha512(passwd).hexdigest()
+
 class Property(object):
-	def __init__(self):
-		pass
+	def __init__(self, verbose_name='', name='', default='', required=False, validator=None, choices=None):
+		self.verbose_name = verbose_name
+		self.name = name
+		self.default = default
+		self.required = required
+		self.validator = validator
+		self.choices = choices
+
+
+class PasswordProperty(Property):
+	def __init__(self, plaintext, verbose_name='', name='', default='', required=False, validator=None, choices=None):
+		self._passwd = prep_password(plaintext)
+		Property.__init__(self, verbose_name, name, default, required, validator, choices)
+
+	def __eq__(self, obj):
+		if self._passwd == prep_password(obj):
+			return True
+		return False
+
 
 class ReferenceProperty(Property):
 	"""When this property is updated it actually updates an attribute of another
@@ -18,6 +39,7 @@ class ReferenceProperty(Property):
 		self.id = id
 		self.reference_class = reference_class
 
+
 class ReverseReferenceProperty(Property):
 	"""This acts like a pointer in that when a Model has a reverse reference
 	property it acts as though that whole Model is an attribute of the object
@@ -28,6 +50,7 @@ class ReverseReferenceProperty(Property):
 	Note: this probably will cause a decent-sized performance hit"""
 	def __init__(self, id):
 		self.id = id
+
 
 	def decode(self):
 		#Grab the model and decode it, returning the reassembled Model instance
