@@ -27,11 +27,9 @@ class Model(object):
 			raw = manager.get_object(id)[0][0]
 			decoded = base64.decodestring(raw)
 			raw_dict = json.loads(decoded)
-			print raw_dict
 			fqn = raw_dict['class'] #Fully Qualified Name of the class
-			print fqn
-			exec("from %s import %s" % ('.'.join(fqn.split('.')[:-1]), fqn.split('.')[-1:][0]))
-			exec("obj = %s()" % fqn.split('.')[-1:][0])
+			exec("from %s import %s as _obj_class" % ('.'.join(fqn.split('.')[:-1]), fqn.split('.')[-1:][0]))
+			obj = _obj_class()
 			obj.decode(raw_dict['blob'])
 			return obj
 		except IndexError:
@@ -98,7 +96,7 @@ class Model(object):
 
 		Returns a dictionary of the attributes that were encoding"""
 		import pickle
-		attrs = pickle.loads(raw)
+		attrs = pickle.loads(str(raw))
 		for k, v in attrs.items():
 			if isinstance(v, ReferenceProperty):
 				self.__dict__[k] = v.decode()
