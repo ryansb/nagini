@@ -15,7 +15,6 @@ class Model(object):
 
 	def __init__(self):
 		self.id = None
-		pass
 
 	@classmethod
 	def _get_by_id(cls, id, manager=None):

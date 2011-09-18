@@ -10,6 +10,7 @@ MAX_ITEMS = 255
 class Node(Model):
 	def __init__(self, parent):
 		self.parent = parent
+		Model.__init__(self)
 
 	def add_entry(self, ref):
 		raise NotImplemented('Reference addition not implemented for this type')
@@ -19,12 +20,9 @@ class Node(Model):
 
 
 class HeadNode(Node):
-	def __init__(self, parent):
-		if self.parent == None:
-			self.nref = {} #References to other nodes, stored as {'prefix': node_id}
-		else:
-			self.nref = []
-		Node.__init__(self, parent)
+	def __init__(self):
+		self.nref = {} #References to other nodes, stored as {'prefix': node_id}
+		Node.__init__(self)
 
 	def add_node(self, prefix, uid):
 		if self.parent is not None:
@@ -37,14 +35,25 @@ class HeadNode(Node):
 		return True
 
 
-class SubNode(Node):
+class RbNode(Node):
 	def __init__(self, parent):
-		self.oref = [] #References to objects, stored as str(id)
-		self.nref = [] #list of ids of child nodes
+		self.objects = [] #References to objects, stored as str(id)
+		self.children = []
 		Node.__init__(self, parent)
 
 	def add_node(self, uid):
-		pass
+		if len(self.children) < 2:
+			self.children.append(uid)
+		else:
+			self.children[0].add_node(uid)
 
 	def add_entry(self, uid):
-		pass
+		if len(self.objects) < MAX_ITEMS:
+			self.objects.append(uid)
+		elif len(self.children) > 0:
+			self.children[0].add_entry(uid)
+		else:
+			nc = RbNode(self.id)
+			nc_id = nc.put()
+			self.children.append(nc_id)
+
