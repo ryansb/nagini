@@ -27,6 +27,19 @@ class PasswordProperty(Property):
 			return True
 		return False
 
+	def __str__(self):
+		return self._passwd
+
+	def __set__(self, obj, value):
+		print 'val', value, type(value)
+		print 'obj', obj, type(obj)
+		obj.value = 'tits'
+		return 'lslsls'
+		if isinstance(value, str):
+			self._passwd = prep_password(value)
+		else:
+			Property.__set__(self, obj, value)
+
 
 class ReferenceProperty(Property):
 	"""When this property is updated it actually updates an attribute of another

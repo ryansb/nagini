@@ -4,7 +4,7 @@
 # Description: User object, associated with queues
 
 from nagini.db.model import Model
-from nagini.property import PasswordProperty
+from nagini.db.property import PasswordProperty
 
 class User(Model):
 	def __init__(self, shortname='', passwd='', longname=None, devices=[]):
